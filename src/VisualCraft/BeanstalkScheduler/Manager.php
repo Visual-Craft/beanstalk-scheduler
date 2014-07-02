@@ -8,7 +8,7 @@ use Psr\Log\NullLogger;
 
 class Manager
 {
-    use LoggerAwareTrait
+    use LoggerAwareTrait;
 
     /**
      * @var string

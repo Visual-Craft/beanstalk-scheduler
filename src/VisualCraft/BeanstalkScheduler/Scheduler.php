@@ -10,7 +10,7 @@ use VisualCraft\BeanstalkScheduler\Exceptions\RescheduleJobException;
 
 class Scheduler
 {
-    use LoggerAwareTrait
+    use LoggerAwareTrait;
 
     /**
      * @var string
