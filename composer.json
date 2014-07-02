@@ -1,0 +1,14 @@
+{
+    "name": "visual-craft/beanstalk-scheduler",
+    "version": "dev-master",
+    "description": "Background jobs scheduling using Beanstalk",
+    "homepage": "https://gitlab.visual-craft.com/misc/crontab-manager",
+    "autoload": {
+        "psr-0": { "VisualCraft\\": "src/" }
+    },
+    "require": {
+        "php": ">=5.5.0",
+        "pda/pheanstalk": "v3.0.0",
+        "psr/log": "1.0.*@dev"
+    }
+}
