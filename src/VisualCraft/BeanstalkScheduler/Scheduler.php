@@ -166,9 +166,9 @@ class Scheduler
                 $this->logger->log('info', "Job #{$job->getId()} with beanstalk id #{$pheanstalkJob->getId()} performed successfully");
             } catch (\Exception $exception) {
                 $this->handleException($exception, $job);
+            } finally {
+                $this->connection->delete($pheanstalkJob);
             }
-
-            $this->connection->delete($pheanstalkJob);
         }
     }
 
