@@ -122,6 +122,7 @@ class Scheduler
         $useTimeout = $this->timeout > 0;
         $useJobsLimit = $this->maxJobs > 0;
         $this->logger->log('info', 'Start processing of work queue');
+        $reserveTimeout = 120;
 
         while (true) {
             if ($useJobsLimit && $processedJobs > $this->maxJobs) {
@@ -139,14 +140,11 @@ class Scheduler
                 }
 
                 $reserveTimeout = $timeLeft;
-            } else {
-                $reserveTimeout = 0;
             }
 
             $pheanstalkJob = $this->connection->watch($this->queueName)->reserve($reserveTimeout);
 
-            if (!$pheanstalkJob instanceof PheanstalkJob) {
-                $this->logger->log('info', 'Received invalid job, skipping');
+            if (!$pheanstalkJob) {
                 continue;
             }
 
