@@ -3,7 +3,6 @@
 namespace VisualCraft\BeanstalkScheduler;
 
 use Pheanstalk\Pheanstalk;
-use Pheanstalk\Job as PheanstalkJob;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use VisualCraft\BeanstalkScheduler\Exceptions\RescheduleJobException;
