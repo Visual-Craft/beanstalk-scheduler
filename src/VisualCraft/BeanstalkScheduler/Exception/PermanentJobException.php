@@ -1,6 +1,6 @@
 <?php
 
-namespace VisualCraft\BeanstalkScheduler\Exceptions;
+namespace VisualCraft\BeanstalkScheduler\Exception;
 
 class PermanentJobException extends \Exception
 {
