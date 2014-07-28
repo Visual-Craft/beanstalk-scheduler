@@ -46,5 +46,5 @@ Then:
     }
     
     $scheduler = new \VisualCraft\BeanstalkScheduler\Scheduler($connection, 'some_queue');
-    $scheduler->registerWorker(new SomeWorker());
+    $scheduler->setWorker(new SomeWorker());
     $scheduler->process();

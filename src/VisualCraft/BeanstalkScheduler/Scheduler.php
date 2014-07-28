@@ -122,6 +122,17 @@ class Scheduler
     }
 
     /**
+     * @param WorkerInterface $worker
+     * @return $this
+     */
+    public function setWorker(WorkerInterface $worker)
+    {
+        $this->worker = $worker;
+
+        return $this;
+    }
+
+    /**
      *
      */
     public function process()
@@ -177,14 +188,6 @@ class Scheduler
                 $this->connection->delete($pheanstalkJob);
             }
         }
-    }
-
-    /**
-     * @param WorkerInterface $worker
-     */
-    public function registerWorker(WorkerInterface $worker)
-    {
-        $this->worker = $worker;
     }
 
     /**
