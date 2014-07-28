@@ -44,9 +44,8 @@ class Scheduler
     /**
      * @param $queueName
      * @param Pheanstalk $connection
-     * @param array $reschedule
      */
-    public function __construct(Pheanstalk $connection, $queueName, array $reschedule = [])
+    public function __construct(Pheanstalk $connection, $queueName)
     {
         $this->connection = $connection;
         $this->queueName = $queueName;
