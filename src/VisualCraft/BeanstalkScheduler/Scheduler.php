@@ -5,7 +5,7 @@ namespace VisualCraft\BeanstalkScheduler;
 use Pheanstalk\Pheanstalk;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
-use VisualCraft\BeanstalkScheduler\Exceptions\RescheduleJobException;
+use VisualCraft\BeanstalkScheduler\Exception\RescheduleJobException;
 
 class Scheduler
 {

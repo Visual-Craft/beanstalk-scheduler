@@ -2,8 +2,8 @@
 
 namespace VisualCraft\BeanstalkScheduler;
 
-use VisualCraft\BeanstalkScheduler\Exceptions\PermanentJobException;
-use VisualCraft\BeanstalkScheduler\Exceptions\RescheduleJobException;
+use VisualCraft\BeanstalkScheduler\Exception\PermanentJobException;
+use VisualCraft\BeanstalkScheduler\Exception\RescheduleJobException;
 
 abstract class AbstractWorker implements WorkerInterface
 {
