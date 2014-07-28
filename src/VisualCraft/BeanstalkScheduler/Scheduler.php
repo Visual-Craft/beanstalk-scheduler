@@ -29,7 +29,7 @@ class Scheduler
     /**
      * @var array
      */
-    private $rescedule;
+    private $reschedule;
 
     /**
      * @var int
@@ -72,11 +72,22 @@ class Scheduler
     }
 
     /**
+     * @param array $value
+     * @return $this
+     */
+    public function setReschedule(array $value)
+    {
+        $this->reschedule = $value;
+
+        return $this;
+    }
+
+    /**
      * @return array
      */
-    public function getRescheduleParameters()
+    public function getReschedule()
     {
-        return $this->rescedule;
+        return $this->reschedule;
     }
 
     /**
@@ -185,7 +196,7 @@ class Scheduler
     {
         $this->log('error', sprintf("Exception occurred: class '%s', message %s", get_class($exception), $exception->getMessage()));
 
-        if (empty($this->rescedule)) {
+        if (empty($this->reschedule)) {
             $this->log('info', "Rescheduling not required as not defined in configuration.");
 
             return;
@@ -197,7 +208,7 @@ class Scheduler
             return;
         }
 
-        if ($job->getAttemptsCount() > count($this->rescedule)) {
+        if ($job->getAttemptsCount() > count($this->reschedule)) {
             $this->log('info', "Exceeded the number of attempts.");
 
             return;
@@ -207,7 +218,7 @@ class Scheduler
             $this->queueName,
             serialize($job),
             Pheanstalk::DEFAULT_PRIORITY,
-            $this->rescedule[$job->getAttemptsCount() - 1],
+            $this->reschedule[$job->getAttemptsCount() - 1],
             3600
         );
 
