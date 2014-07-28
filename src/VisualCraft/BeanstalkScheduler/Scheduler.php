@@ -120,12 +120,12 @@ class Scheduler
         $processedJobs = 0;
         $useTimeout = $this->timeout > 0;
         $useJobsLimit = $this->maxJobs > 0;
-        $this->logger->log('info', 'Start processing of work queue');
+        $this->log('info', 'Start processing of work queue');
         $reserveTimeout = 120;
 
         while (true) {
             if ($useJobsLimit && $processedJobs > $this->maxJobs) {
-                $this->logger->log('info', 'Max jobs limit processing reached, stopping');
+                $this->log('info', 'Max jobs limit processing reached, stopping');
                 break;
             }
 
@@ -134,7 +134,7 @@ class Scheduler
                 $timeLeft = $this->timeout - $timeSpent;
 
                 if ($timeLeft <= 0) {
-                    $this->logger->log('info', 'Max time limit of processing reached, stopping');
+                    $this->log('info', 'Max time limit of processing reached, stopping');
                     break;
                 }
 
@@ -150,17 +150,17 @@ class Scheduler
             $job = unserialize($pheanstalkJob->getData());
 
             if (!$job instanceof Job) {
-                $this->logger->log('info', 'Received invalid job, skipping');
+                $this->log('info', 'Received invalid job, skipping');
                 continue;
             }
 
             $processedJobs++;
             $job->nextAttempt();
-            $this->logger->log('info', "Processing job #{$job->getId()} with beanstalk id #{$pheanstalkJob->getId()}, {$job->getAttemptsCount()} attempt");
+            $this->log('info', "Processing job #{$job->getId()}({$pheanstalkJob->getId()}), {$job->getAttemptsCount()} attempt");
 
             try {
                 $this->worker->work($job);
-                $this->logger->log('info', "Job #{$job->getId()} with beanstalk id #{$pheanstalkJob->getId()} performed successfully");
+                $this->log('info', "Job #{$job->getId()}({$pheanstalkJob->getId()}) performed successfully");
             } catch (\Exception $exception) {
                 $this->handleException($exception, $job);
             } finally {
@@ -183,22 +183,22 @@ class Scheduler
      */
     private function handleException(\Exception $exception, Job $job)
     {
-        $this->logger->log('info', "Error occurred: {$exception->getMessage()}");
+        $this->log('error', sprintf("Exception occurred: class '%s', message %s", get_class($exception), $exception->getMessage()));
 
         if (empty($this->rescedule)) {
-            $this->logger->log('error', "Rescheduling not required as not defined in configuration.");
+            $this->log('info', "Rescheduling not required as not defined in configuration.");
 
             return;
         }
 
         if (!$exception instanceof RescheduleJobException) {
-            $this->logger->log('info', "Permanent error.");
+            $this->log('info', "Permanent error.");
 
             return;
         }
 
         if ($job->getAttemptsCount() > count($this->rescedule)) {
-            $this->logger->log('info', "Exceeded the number of attempts.");
+            $this->log('info', "Exceeded the number of attempts.");
 
             return;
         }
@@ -211,6 +211,16 @@ class Scheduler
             3600
         );
 
-        $this->logger->log('info', "Rescheduling job #{$job->getId()}, new beanstalk id #{$id}");
+        $this->log('info', "Rescheduling job #{$job->getId()}, new beanstalk id #{$id}");
+    }
+
+    /**
+     * @param mixed $level
+     * @param string $message
+     * @param array $context
+     */
+    private function log($level, $message, array $context = [])
+    {
+        $this->logger->log($level, $message, array_replace(['queue' => $this->queueName], $context));
     }
 }
