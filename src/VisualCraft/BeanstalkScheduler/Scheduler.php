@@ -91,10 +91,13 @@ class Scheduler
 
     /**
      * @param int $value
+     * @return $this
      */
     public function setTimeout($value)
     {
         $this->timeout = (int) $value;
+
+        return $this;
     }
 
     /**
@@ -107,10 +110,13 @@ class Scheduler
 
     /**
      * @param int $value
+     * @return $this
      */
     public function setMaxJobs($value)
     {
         $this->maxJobs = (int) $value;
+
+        return $this;
     }
 
     /**
