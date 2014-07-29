@@ -202,7 +202,11 @@ class Scheduler
      */
     private function handleException(\Exception $exception, Job $job)
     {
-        $this->log('error', sprintf("Exception occurred: class '%s', message %s", get_class($exception), $exception->getMessage()));
+        $this->logException("Exception occurred", $exception);
+
+        if (($previousException = $exception->getPrevious()) !== null) {
+            $this->logException("Previous exception", $previousException);
+        }
 
         if (empty($this->reschedule)) {
             $this->log('info', "Rescheduling not required as not defined in configuration.");
@@ -241,5 +245,16 @@ class Scheduler
     private function log($level, $message, array $context = [])
     {
         $this->logger->log($level, $message, array_replace(['queue' => $this->queueName], $context));
+    }
+
+    /**
+     * @param string $message
+     * @param \Exception $exception
+     */
+    private function logException($message, \Exception $exception)
+    {
+        $this->log('error', sprintf(
+            "%s: class '%s', message %s", $message, get_class($exception), $exception->getMessage()
+        ));
     }
 }
