@@ -106,6 +106,14 @@ class Scheduler extends AbstractBeanstalkManager
     }
 
     /**
+     * @return WorkerInterface
+     */
+    public function getWorker()
+    {
+        return $this->worker;
+    }
+
+    /**
      *
      */
     public function process()
