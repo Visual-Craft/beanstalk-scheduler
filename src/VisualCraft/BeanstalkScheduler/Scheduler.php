@@ -3,28 +3,14 @@
 namespace VisualCraft\BeanstalkScheduler;
 
 use Pheanstalk\Pheanstalk;
-use Psr\Log\LoggerAwareTrait;
-use Psr\Log\NullLogger;
 use VisualCraft\BeanstalkScheduler\Exception\RescheduleJobException;
 
-class Scheduler
+class Scheduler extends AbstractBeanstalkManager
 {
-    use LoggerAwareTrait;
-
-    /**
-     * @var string
-     */
-    private $queueName;
-
     /**
      * @var WorkerInterface
      */
     private $worker;
-
-    /**
-     * @var Pheanstalk
-     */
-    private $connection;
 
     /**
      * @var array
@@ -42,32 +28,13 @@ class Scheduler
     private $maxJobs;
 
     /**
-     * @param $queueName
-     * @param Pheanstalk $connection
+     * {@inheritDoc}
      */
     public function __construct(Pheanstalk $connection, $queueName)
     {
-        $this->connection = $connection;
-        $this->queueName = $queueName;
+        parent::__construct($connection, $queueName);
         $this->timeout = 0;
         $this->maxJobs = 0;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @return Pheanstalk
-     */
-    public function getConnection()
-    {
-        return $this->connection;
-    }
-
-    /**
-     * @return string
-     */
-    public function getQueueName()
-    {
-        return $this->queueName;
     }
 
     /**
@@ -226,35 +193,7 @@ class Scheduler
             return;
         }
 
-        $id = $this->connection->putInTube(
-            $this->queueName,
-            serialize($job),
-            Pheanstalk::DEFAULT_PRIORITY,
-            $this->reschedule[$job->getAttemptsCount() - 1],
-            3600
-        );
-
+        $id = $this->putInTube($job, $this->reschedule[$job->getAttemptsCount() - 1]);
         $this->log('info', "Rescheduling job #{$job->getId()}, new beanstalk id #{$id}");
-    }
-
-    /**
-     * @param mixed $level
-     * @param string $message
-     * @param array $context
-     */
-    private function log($level, $message, array $context = [])
-    {
-        $this->logger->log($level, $message, array_replace(['queue' => $this->queueName], $context));
-    }
-
-    /**
-     * @param string $message
-     * @param \Exception $exception
-     */
-    private function logException($message, \Exception $exception)
-    {
-        $this->log('error', sprintf(
-            "%s: class '%s', message %s", $message, get_class($exception), $exception->getMessage()
-        ));
     }
 }
