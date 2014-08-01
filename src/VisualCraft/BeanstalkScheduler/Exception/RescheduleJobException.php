@@ -2,7 +2,7 @@
 
 namespace VisualCraft\BeanstalkScheduler\Exception;
 
-class RescheduleJobException extends AbstractJobException
+class RescheduleJobException extends \Exception
 {
 
 }
