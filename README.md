@@ -24,6 +24,7 @@ Then:
 
 ## Use:
 
+    // Create Beanstalkd connection
     $connection = new \Pheanstalk\Pheanstalk('127.0.0.1');
     
     
@@ -33,18 +34,25 @@ Then:
     $manager->add($job);
 
 
-    // Process job
-    class SomeWorker implements \VisualCraft\BeanstalkScheduler\AbstractWorker
+    // Define worker
+    class SomeWorker implements \VisualCraft\BeanstalkScheduler\WorkerInterface
     {
         public function work(Job $job)
         {
             // do some work
+            // $job->getPayload() returns 'some data'
             
-            // reschedule failed job:
-            // $this->reschedule();
+            // you can reschedule failed job:
+            // throw new \VisualCraft\BeanstalkScheduler\Exception\RescheduleJobException();
         }
     }
-    
+
+
+    // Process job
     $scheduler = new \VisualCraft\BeanstalkScheduler\Scheduler($connection, 'some_queue');
-    $scheduler->setWorker(new SomeWorker());
+    $scheduler
+        ->setWorker(new SomeWorker())
+        // Define rescheduling configuration:
+        ->setReschedule([20, 30])
+    ;
     $scheduler->process();
