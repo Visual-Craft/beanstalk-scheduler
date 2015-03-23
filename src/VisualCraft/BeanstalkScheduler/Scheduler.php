@@ -152,19 +152,25 @@ class Scheduler extends AbstractBeanstalkManager
             $job = unserialize($pheanstalkJob->getData());
 
             if (!$job instanceof Job) {
-                $this->log('info', 'Received invalid job, skipping');
+                $this->log('info', 'Received invalid job, skipping', [
+                    'beanstalk-id' => $pheanstalkJob->getId(),
+                ]);
                 continue;
             }
 
             $processedJobs++;
             $job->nextAttempt();
-            $this->log('info', "Processing job #{$job->getId()}({$pheanstalkJob->getId()}), {$job->getAttemptsCount()} attempt");
+            $loggingContext = [
+                'job-id' => $job->getId(),
+                'beanstalk-id' => $pheanstalkJob->getId(),
+            ];
+            $this->log('info', "Processing job, attempt #{$job->getAttemptsCount()}", $loggingContext);
 
             try {
                 $this->worker->work($job);
-                $this->log('info', "Job #{$job->getId()}({$pheanstalkJob->getId()}) performed successfully");
+                $this->log('info', 'Job performed successfully', $loggingContext);
             } catch (\Exception $exception) {
-                $this->handleException($exception, $job);
+                $this->handleException($exception, $job, $loggingContext);
             } finally {
                 $this->connection->delete($pheanstalkJob);
             }
@@ -174,34 +180,33 @@ class Scheduler extends AbstractBeanstalkManager
     /**
      * @param \Exception $exception
      * @param Job $job
+     * @param array $loggingContext
      */
-    private function handleException(\Exception $exception, Job $job)
+    private function handleException(\Exception $exception, Job $job, array $loggingContext)
     {
-        $this->logException("Exception occurred", $exception);
-
-        if (($previousException = $exception->getPrevious()) !== null) {
-            $this->logException("Previous exception", $previousException);
-        }
+        $this->logException($exception, $loggingContext);
 
         if (empty($this->reschedule)) {
-            $this->log('info', "Rescheduling not required as not defined in configuration.");
+            $this->log('info', 'Rescheduling is not required.', $loggingContext);
 
             return;
         }
 
         if (!$exception instanceof RescheduleJobException) {
-            $this->log('info', "Permanent error.");
+            $this->log('info', 'Rescheduling isn\'t performed as error is permanent.', $loggingContext);
 
             return;
         }
 
         if ($job->getAttemptsCount() > count($this->reschedule)) {
-            $this->log('info', "Exceeded the number of attempts.");
+            $this->log('info', 'Rescheduling isn\'t performed as the number of attempts is exceeded.', $loggingContext);
 
             return;
         }
 
         $id = $this->putInTube($job, $this->reschedule[$job->getAttemptsCount() - 1]);
-        $this->log('info', "Rescheduling job #{$job->getId()}, new beanstalk id #{$id}");
+        $this->log('info', "Rescheduling job.", array_replace($loggingContext, [
+            'new-beanstalk-id' => $id,
+        ]));
     }
 }

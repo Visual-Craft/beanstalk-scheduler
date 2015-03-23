@@ -93,13 +93,20 @@ class AbstractBeanstalkManager
     }
 
     /**
-     * @param string $message
      * @param \Exception $exception
+     * @param array $context
      */
-    protected function logException($message, \Exception $exception)
+    protected function logException(\Exception $exception, array $context = [])
     {
-        $this->log('error', sprintf(
-            "%s: class '%s', message %s", $message, get_class($exception), $exception->getMessage()
-        ));
+        $buildExceptionMessage = function (\Exception $e) {
+            return sprintf("class '%s', message '%s'", get_class($e), $e->getMessage());
+        };
+        $message = 'Exception occurred: ' . $buildExceptionMessage($exception);
+
+        if (($previousException = $exception->getPrevious()) !== null) {
+            $message .= ', previous exception: ' . $buildExceptionMessage($previousException);
+        }
+
+        $this->log('error', $message, array_replace(['queue' => $this->queueName], $context));
     }
 }
