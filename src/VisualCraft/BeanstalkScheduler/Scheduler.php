@@ -188,18 +188,21 @@ class Scheduler extends AbstractBeanstalkManager
 
         if (empty($this->reschedule)) {
             $this->log('info', 'Rescheduling is not required.', $loggingContext);
+            $this->worker->fail($job);
 
             return;
         }
 
         if (!$exception instanceof RescheduleJobException && !$this->worker->isReschedulableException($exception)) {
             $this->log('info', 'Rescheduling isn\'t performed as error is permanent.', $loggingContext);
+            $this->worker->fail($job);
 
             return;
         }
 
         if ($job->getAttemptsCount() > count($this->reschedule)) {
             $this->log('info', 'Rescheduling isn\'t performed as the number of attempts is exceeded.', $loggingContext);
+            $this->worker->fail($job);
 
             return;
         }

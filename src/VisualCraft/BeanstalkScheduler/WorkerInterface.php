@@ -14,4 +14,9 @@ interface WorkerInterface
      * @return bool
      */
     public function isReschedulableException(\Exception $exception);
+
+    /**
+     * @param Job $job
+     */
+    public function fail(Job $job);
 }

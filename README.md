@@ -50,6 +50,10 @@ Then:
         {
             // Another way of rescheduling failed job
             return true; // Put some logic here
+
+        public function fail(Job $job)
+        {
+            // Optionally you can do something with failed job
         }
     }
 

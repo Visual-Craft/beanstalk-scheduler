@@ -11,4 +11,12 @@ abstract class AbstractWorker implements WorkerInterface
     {
         return false;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fail(Job $job)
+    {
+        // Does nothing by default
+    }
 }
