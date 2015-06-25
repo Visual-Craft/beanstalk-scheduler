@@ -185,37 +185,27 @@ class Scheduler extends AbstractBeanstalkManager
     private function handleException(\Exception $exception, Job $job, array $loggingContext)
     {
         $this->logException($exception, $loggingContext);
-        $fail = false;
 
         if (empty($this->reschedule)) {
-            $this->log('info', 'Rescheduling is not required.', $loggingContext);
-            $fail = true;
-        }
-
-        if (!$exception instanceof RescheduleJobException && !$this->worker->isReschedulableException($exception)) {
+            $this->log('info', 'Rescheduling isn\'t required.', $loggingContext);
+        } elseif (!$exception instanceof RescheduleJobException && !$this->worker->isReschedulableException($exception)) {
             $this->log('info', 'Rescheduling isn\'t performed as error is permanent.', $loggingContext);
-            $fail = true;
-        }
-
-        if ($job->getAttemptsCount() > count($this->reschedule)) {
+        } elseif ($job->getAttemptsCount() > count($this->reschedule)) {
             $this->log('info', 'Rescheduling isn\'t performed as the number of attempts is exceeded.', $loggingContext);
-            $fail = true;
-        }
-
-        if ($fail) {
-            try {
-                $this->worker->fail($job);
-            } catch (\Exception $e) {
-                $this->log('error', 'Got exception while running worker\'s fail action.', $loggingContext);
-                $this->logException($e, $loggingContext);
-            }
+        } else {
+            $id = $this->putInTube($job, $this->reschedule[$job->getAttemptsCount() - 1]);
+            $this->log('info', "Job successfully rescheduled.", array_replace($loggingContext, [
+                'new-beanstalk-id' => $id,
+            ]));
 
             return;
         }
 
-        $id = $this->putInTube($job, $this->reschedule[$job->getAttemptsCount() - 1]);
-        $this->log('info', "Rescheduling job.", array_replace($loggingContext, [
-            'new-beanstalk-id' => $id,
-        ]));
+        try {
+            $this->worker->fail($job);
+        } catch (\Exception $e) {
+            $this->log('error', 'Got exception while running worker\'s fail action.', $loggingContext);
+            $this->logException($e, $loggingContext);
+        }
     }
 }
