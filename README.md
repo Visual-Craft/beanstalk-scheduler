@@ -45,6 +45,12 @@ Then:
             // you can reschedule failed job:
             // throw new \VisualCraft\BeanstalkScheduler\Exception\RescheduleJobException();
         }
+
+        public function isReschedulableException(\Exception $exception)
+        {
+            // Another way of rescheduling failed job
+            return true; // Put some logic here
+        }
     }
 
 
