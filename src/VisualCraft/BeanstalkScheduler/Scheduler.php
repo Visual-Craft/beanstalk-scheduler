@@ -185,24 +185,30 @@ class Scheduler extends AbstractBeanstalkManager
     private function handleException(\Exception $exception, Job $job, array $loggingContext)
     {
         $this->logException($exception, $loggingContext);
+        $fail = false;
 
         if (empty($this->reschedule)) {
             $this->log('info', 'Rescheduling is not required.', $loggingContext);
-            $this->worker->fail($job);
-
-            return;
+            $fail = true;
         }
 
         if (!$exception instanceof RescheduleJobException && !$this->worker->isReschedulableException($exception)) {
             $this->log('info', 'Rescheduling isn\'t performed as error is permanent.', $loggingContext);
-            $this->worker->fail($job);
-
-            return;
+            $fail = true;
         }
 
         if ($job->getAttemptsCount() > count($this->reschedule)) {
             $this->log('info', 'Rescheduling isn\'t performed as the number of attempts is exceeded.', $loggingContext);
-            $this->worker->fail($job);
+            $fail = true;
+        }
+
+        if ($fail) {
+            try {
+                $this->worker->fail($job);
+            } catch (\Exception $e) {
+                $this->log('error', 'Got exception while running worker\'s fail action.', $loggingContext);
+                $this->logException($e, $loggingContext);
+            }
 
             return;
         }
