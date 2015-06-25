@@ -192,7 +192,7 @@ class Scheduler extends AbstractBeanstalkManager
             return;
         }
 
-        if (!$exception instanceof RescheduleJobException) {
+        if (!$exception instanceof RescheduleJobException && !$this->worker->isReschedulableException($exception)) {
             $this->log('info', 'Rescheduling isn\'t performed as error is permanent.', $loggingContext);
 
             return;
