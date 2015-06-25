@@ -49,7 +49,9 @@ Then:
         public function isReschedulableException(\Exception $exception)
         {
             // Another way of rescheduling failed job
-            return true; // Put some logic here
+            // Put some logic here
+            return true;
+        }
 
         public function fail(Job $job)
         {
