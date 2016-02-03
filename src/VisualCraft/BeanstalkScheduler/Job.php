@@ -24,7 +24,7 @@ class Job
      */
     public function __construct($payload)
     {
-        $this->id = uniqid('', true);
+        $this->id = $this->generateUniqId();
         $this->payload = $payload;
         $this->attemptsCount = 0;
     }
@@ -81,5 +81,13 @@ class Job
     public function getPayload()
     {
         return $this->payload;
+    }
+
+    /**
+     * @return string
+     */
+    private function generateUniqId()
+    {
+        return str_replace('.', '', uniqid('', true));
     }
 }
