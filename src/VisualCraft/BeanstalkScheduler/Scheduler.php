@@ -114,9 +114,9 @@ class Scheduler extends AbstractBeanstalkManager
     }
 
     /**
-     *
+     * @param mixed $workerData
      */
-    public function process()
+    public function process($workerData = null)
     {
         $scheduleStartTime = time();
         $processedJobs = 0;
@@ -167,7 +167,9 @@ class Scheduler extends AbstractBeanstalkManager
             $this->log('info', "Processing job, attempt #{$job->getAttemptsCount()}", $loggingContext);
 
             try {
-                $this->worker->work($job);
+                // argument missing in interface for BC reason
+                /** @noinspection PhpMethodParametersCountMismatchInspection */
+                $this->worker->work($job, $workerData);
                 $this->log('info', 'Job performed successfully', $loggingContext);
             } catch (\Exception $exception) {
                 $this->handleException($exception, $job, $loggingContext);
