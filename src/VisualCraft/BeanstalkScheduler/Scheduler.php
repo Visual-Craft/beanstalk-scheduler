@@ -121,6 +121,7 @@ class Scheduler extends AbstractBeanstalkManager
     {
         $scheduleStartTime = time();
         $processedJobs = 0;
+        $successfulJobs = 0;
         $useTimeout = $this->timeout > 0;
         $useJobsLimit = $this->maxJobs > 0;
         $this->log('info', 'Start processing of work queue');
@@ -175,12 +176,15 @@ class Scheduler extends AbstractBeanstalkManager
                 }
 
                 $this->log('info', 'Job performed successfully', $loggingContext);
+                $successfulJobs++;
             } catch (\Exception $exception) {
                 $this->handleException($exception, $job, $loggingContext);
             } finally {
                 $this->connection->delete($pheanstalkJob);
             }
         }
+
+        return $successfulJobs;
     }
 
     /**
