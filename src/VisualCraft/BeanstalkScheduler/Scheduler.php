@@ -127,7 +127,7 @@ class Scheduler extends AbstractBeanstalkManager
         $reserveTimeout = 120;
 
         while (true) {
-            if ($useJobsLimit && $processedJobs > $this->maxJobs) {
+            if ($useJobsLimit && $processedJobs >= $this->maxJobs) {
                 $this->log('info', 'Max jobs limit processing reached, stopping');
                 break;
             }
