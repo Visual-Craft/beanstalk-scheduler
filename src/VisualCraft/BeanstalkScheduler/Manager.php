@@ -15,4 +15,35 @@ class Manager extends AbstractBeanstalkManager
         $context['beanstalk-id'] = $id;
         $this->log('info', 'Job successfully added to queue', $context);
     }
+
+    /**
+     * @param bool $ignoreErrors
+     * @throws \Exception
+     */
+    public function clearQueue($ignoreErrors = false)
+    {
+        $methods = [
+            'peekReady',
+            'peekDelayed',
+            'peekBuried',
+        ];
+
+        try {
+            foreach ($methods as $method) {
+                while ($job = $this->connection->{$method}($this->queueName)) {
+                    if ($ignoreErrors) {
+                        try {
+                            $this->connection->delete($job);
+                        } catch (\Exception $e) {}
+                    } else {
+                        $this->connection->delete($job);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            if (!$ignoreErrors) {
+                throw $e;
+            }
+        }
+    }
 }
