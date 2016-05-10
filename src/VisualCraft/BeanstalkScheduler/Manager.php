@@ -2,6 +2,8 @@
 
 namespace VisualCraft\BeanstalkScheduler;
 
+use Pheanstalk\Exception\ServerException;
+
 class Manager extends AbstractBeanstalkManager
 {
     /**
@@ -17,32 +19,25 @@ class Manager extends AbstractBeanstalkManager
     }
 
     /**
-     * @param bool $ignoreErrors
-     * @throws \Exception
+     *
      */
-    public function clearQueue($ignoreErrors = false)
+    public function clearQueue()
     {
-        $methods = [
-            'peekReady',
-            'peekDelayed',
-            'peekBuried',
-        ];
-
-        try {
-            foreach ($methods as $method) {
-                while ($job = $this->connection->{$method}($this->queueName)) {
-                    if ($ignoreErrors) {
-                        try {
-                            $this->connection->delete($job);
-                        } catch (\Exception $e) {}
-                    } else {
-                        $this->connection->delete($job);
-                    }
+        $getJob = function ($method) {
+            try {
+                return $this->connection->{$method}($this->queueName);
+            } catch (ServerException $e) {
+                if (strpos($e->getMessage(), 'NOT_FOUND:') === 0) {
+                    return null;
                 }
-            }
-        } catch (\Exception $e) {
-            if (!$ignoreErrors) {
+
                 throw $e;
+            }
+        };
+
+        foreach (['peekReady', 'peekDelayed', 'peekBuried'] as $method) {
+            while ($job = $getJob($method)) {
+                $this->connection->delete($job);
             }
         }
     }
