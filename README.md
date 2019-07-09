@@ -53,3 +53,8 @@ Background jobs scheduling using Beanstalk
         ->setReschedule([20, 30])
     ;
     $scheduler->process();
+
+License
+-------
+
+This code is released under the MIT license. See the complete license in the file: `LICENSE`
