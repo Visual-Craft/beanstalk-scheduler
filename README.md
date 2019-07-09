@@ -1,13 +1,17 @@
-# Beanstalk Scheduler
+Beanstalk Scheduler
+===================
+
 Background jobs scheduling using Beanstalk
 
 
-## Install:
+Install
+-------
 
     $ composer require visual-craft/beanstalk-scheduler
 
 
-## Use:
+Usage
+-----
 
     // Create Beanstalkd connection
     $connection = new \Pheanstalk\Pheanstalk('127.0.0.1');
