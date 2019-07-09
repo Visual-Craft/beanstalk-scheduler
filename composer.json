@@ -1,6 +1,5 @@
 {
     "name": "visual-craft/beanstalk-scheduler",
-    "version": "dev-master",
     "description": "Background jobs scheduling using Beanstalk",
     "homepage": "https://github.com/Visual-Craft/beanstalk-scheduler",
     "autoload": {
