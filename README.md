@@ -1,23 +1,8 @@
 # Beanstalk Scheduler
+Background jobs scheduling using Beanstalk
 
 
 ## Install:
-
-In composer.json add:
-
-    {
-        ...
-        "repositories": [
-            {
-                "type": "vcs",
-                "url": "git@gitlab.visual-craft.com:global/beanstalk-scheduler.git"
-            },
-            ...
-        ],
-        ...
-    }
-
-Then:
 
     $ composer require visual-craft/beanstalk-scheduler
 
