@@ -8,15 +8,16 @@ class Manager extends AbstractBeanstalkManager
 {
     /**
      * @param Job $job
+     * @param int $delay
      * @throws \Exception
      */
-    public function submit(Job $job)
+    public function submit(Job $job, $delay = 0)
     {
         $context = ['job-id' => $job->getId()];
         $this->log('info', 'Received new job', $context);
 
         try {
-            $id = $this->putInTube($job);
+            $id = $this->putInTube($job, $delay);
         } catch (\Exception $e) {
             $this->log('error', 'Unable to add job to queue.', $context);
             $this->logException($e, $context);

@@ -20,7 +20,9 @@ Usage
     // Add job
     $manager = new \VisualCraft\BeanstalkScheduler\Manager($connection, 'some_queue');
     $job = new \VisualCraft\BeanstalkScheduler\Job('some data');
-    $manager->add($job);
+    $manager->submit($job);
+    // or
+    //$manager->submit($job, 60); // with the delay of 60 seconds
 
 
     // Define worker
